@@ -1,4 +1,4 @@
-exports.decodeHtmlEntity = function(input) {
+export const decodeHtmlEntity = function(input) {
   if (typeof DOMParser === "undefined") {
     return input;
   }

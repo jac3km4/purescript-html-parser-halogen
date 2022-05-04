@@ -14,9 +14,9 @@ import Data.Either (Either)
 import Data.List (List)
 import Data.List as List
 import Data.String.CodeUnits (fromCharArray)
-import Text.Parsing.StringParser (Parser, ParseError, runParser, try)
-import Text.Parsing.StringParser.CodeUnits (anyChar, regex, skipSpaces, string, whiteSpace)
-import Text.Parsing.StringParser.Combinators (many, manyTill, option, optional, sepEndBy)
+import StringParser (Parser, ParseError, runParser, try)
+import StringParser.CodeUnits (anyChar, regex, skipSpaces, string, whiteSpace)
+import StringParser.Combinators (many, manyTill, option, optional, sepEndBy)
 
 data HtmlNode
   = HtmlElement Element
