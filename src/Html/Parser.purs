@@ -7,6 +7,8 @@ module Html.Parser
 
 import Prelude
 
+import Data.Either (Either(..))
+
 data HtmlNode
   = HtmlElement Element
   | HtmlText String
@@ -29,9 +31,11 @@ foreign import parseFromString
   -> (String -> String -> HtmlAttribute)
   -> (String -> HtmlNode)
   -> (String -> HtmlNode)
+  -> (String -> Either String HtmlNode)
+  -> (HtmlNode -> Either String HtmlNode)
   -> String
-  -> Array HtmlNode
+  -> Either String (Array HtmlNode)
 
-parse :: String -> Array HtmlNode
+parse :: String -> Either String (Array HtmlNode)
 parse input =
-  parseFromString HtmlElement HtmlAttribute HtmlText HtmlComment input
+  parseFromString HtmlElement HtmlAttribute HtmlText HtmlComment Left Right input

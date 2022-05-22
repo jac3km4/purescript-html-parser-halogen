@@ -12,6 +12,7 @@ import Prelude
 import Control.Alt ((<|>))
 import DOM.HTML.Indexed (HTMLdiv)
 import Data.Array as Array
+import Data.Either (Either)
 import Data.Maybe (Maybe(..))
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
@@ -40,11 +41,11 @@ nodeToHtml mNs (HtmlElement ele) = elementToHtml mNs ele
 nodeToHtml _ (HtmlText str) = HH.text str
 nodeToHtml _ (HtmlComment _) = HH.text ""
 
-render_ :: forall p i. String -> HH.HTML p i
+render_ :: forall p i. String -> Either String (HH.HTML p i)
 render_ = render []
 
-render :: forall p i. Array (HH.IProp HTMLdiv i) -> String -> HH.HTML p i
-render props = HH.div props <<< renderToArray
+render :: forall p i. Array (HH.IProp HTMLdiv i) -> String -> Either String (HH.HTML p i)
+render props = map (HH.div props) <<< renderToArray
 
-renderToArray :: forall p i. String -> Array (HH.HTML p i)
-renderToArray raw = map (nodeToHtml Nothing) $ parse raw
+renderToArray :: forall p i. String -> Either String (Array (HH.HTML p i))
+renderToArray raw = map (map (nodeToHtml Nothing)) $ parse raw

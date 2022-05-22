@@ -49,9 +49,23 @@ function walk(treeWalker) {
   return nodes;
 }
 
-export const parseFromString = elementCtor => attributeCtor => textCtor => commentCtor => input => {
+function isValidAttrName(str) {
+  return str.match(/^(\w|-)+$/) !== null
+}
+
+function isValidNode(node) {
+  const invalid = node.attributes.find(([k]) => !isValidAttrName(k));
+  return invalid ? invalid[0] : undefined;
+}
+
+export const parseFromString = elementCtor => attributeCtor => textCtor => commentCtor => Left => Right => input => {
+  let error = null;
   function mapNode(node) {
     if (node.type == "element") {
+      const res = isValidNode(node);
+      if (res !== undefined) {
+        error = `Invalid attribute '${res}'`;
+      }
       return elementCtor({
         name: node.name,
         attributes: node.attributes.map(([k, v]) => attributeCtor(k)(v)),
@@ -64,6 +78,11 @@ export const parseFromString = elementCtor => attributeCtor => textCtor => comme
   }
 
   var doc = new DOMParser().parseFromString(input, "text/html");
+  const errorNode = doc.querySelector('parsererror');
+  if (errorNode) {
+    return Left(errorNode.textContent);
+  }
+
   var headNodes = walk(
     doc.createTreeWalker(doc.documentElement.querySelector("head"))
   );
@@ -71,7 +90,7 @@ export const parseFromString = elementCtor => attributeCtor => textCtor => comme
     doc.createTreeWalker(doc.documentElement.querySelector("body"))
   );
 
-  return [...headNodes, ...bodyNodes].map(node => {
+  const res = [...headNodes, ...bodyNodes].map(node => {
     if (node.type == "element") {
       return mapNode(node);
     } else {
@@ -79,4 +98,10 @@ export const parseFromString = elementCtor => attributeCtor => textCtor => comme
       return ctor(node.text);
     }
   });
+
+  if (error !== null) {
+    return Left(error);
+  } else {
+    return Right(res);
+  }
 };
